@@ -11,9 +11,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.barcodesessionlogin.R
+import com.example.barcodesessionlogin.ui.data.BarCodeResponse
 import com.example.barcodesessionlogin.ui.viewmodel.BarCodeScannerViewModel
+import com.google.gson.Gson
 import com.google.zxing.integration.android.IntentIntegrator
-import org.json.JSONObject
 
 class BarCodeScannerFragment : Fragment() {
 
@@ -42,7 +43,10 @@ class BarCodeScannerFragment : Fragment() {
         result?.let { res ->
             res.contents?.let {
                 try {
-                    val obj = JSONObject(it)
+                    val jsonResponse = it.replace("\\", "", false)
+                        .replace("\"{", "{", false)
+                        .replace("}\"", "}", false)
+                    val barCodeData = Gson().fromJson(jsonResponse, BarCodeResponse::class.java)
                     Log.i(TAG, "onActivityResult: $it")
                 } catch (e: Exception) {
                     Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show();
