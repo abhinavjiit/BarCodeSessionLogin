@@ -35,6 +35,7 @@ class DashboardActivity : AppCompatActivity() {
     private fun setupObserver() {
         viewmodel.loadDetailFragment.observe(this) { loadDetailFragment ->
             if (loadDetailFragment) {
+                BarCodeScannerSharedPref.setStartTime()
                 loadFragment(BarCodeDetailInformationFragment.newInstance())
             }
         }

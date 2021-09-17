@@ -11,9 +11,9 @@ object BarCodeScannerSharedPref {
 
     private const val BAR_CODE_RESPONSE = "barCodeResponse"
 
-    private lateinit var appPref: SharedPreferences
+    private const val START_TIME = "starTime"
 
-    private lateinit var prefEditor: SharedPreferences.Editor
+    private lateinit var appPref: SharedPreferences
 
     fun getSharedPref(context: Context) {
         appPref = context.getSharedPreferences("BarCode", Context.MODE_PRIVATE)
@@ -40,6 +40,12 @@ object BarCodeScannerSharedPref {
             null
         }
     }
+
+    fun setStartTime() {
+        appPref.edit().putString(START_TIME, System.currentTimeMillis().toString()).apply()
+    }
+
+    fun getStartTime() = appPref.getString(START_TIME, "")
 
     fun prefClear() {
         appPref.edit().clear().apply()
