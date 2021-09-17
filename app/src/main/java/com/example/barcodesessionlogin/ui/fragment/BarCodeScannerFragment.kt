@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.example.barcodesessionlogin.BarCodeScannerSharedPref
 import com.example.barcodesessionlogin.R
 import com.example.barcodesessionlogin.ui.data.BarCodeResponse
 import com.example.barcodesessionlogin.ui.viewmodel.BarCodeScannerViewModel
@@ -46,13 +47,19 @@ class BarCodeScannerFragment : Fragment() {
                     val jsonResponse = it.replace("\\", "", false)
                         .replace("\"{", "{", false)
                         .replace("}\"", "}", false)
-                    val barCodeData = Gson().fromJson(jsonResponse, BarCodeResponse::class.java)
+                    Gson().fromJson(jsonResponse, BarCodeResponse::class.java).let { barCodeData ->
+                        BarCodeScannerSharedPref.saveBarData(barCodeData)
+                        viewmodel.setBarCodeData(barCodeData)
+                    }
+                    BarCodeScannerSharedPref.setUserIsActive(true)
+                    viewmodel.loadDetailFragment()
                     Log.i(TAG, "onActivityResult: $it")
                 } catch (e: Exception) {
-                    Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show();
+                    BarCodeScannerSharedPref.setUserIsActive(false)
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 }
             } ?: run {
-                Toast.makeText(requireContext(), "Result Not Found", Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(), "Result Not Found", Toast.LENGTH_LONG).show()
             }
         }
     }

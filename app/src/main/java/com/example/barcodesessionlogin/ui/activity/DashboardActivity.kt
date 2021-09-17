@@ -9,7 +9,9 @@ import com.example.barcodesessionlogin.R
 import com.example.barcodesessionlogin.ui.fragment.BarCodeDetailInformationFragment
 import com.example.barcodesessionlogin.ui.fragment.BarCodeScannerFragment
 import com.example.barcodesessionlogin.ui.viewmodel.BarCodeScannerViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class DashboardActivity : AppCompatActivity() {
 
     private val isActiveUSer by lazy { BarCodeScannerSharedPref.isActive() }
@@ -19,14 +21,28 @@ class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
-
+        setupObserver()
         if (isActiveUSer) {
-            // TODO(call barcodedetailfragment)
+            BarCodeScannerSharedPref.getBarCodeData()?.let {
+                viewmodel.setBarCodeData(it)
+            }
             loadFragment(BarCodeDetailInformationFragment.newInstance())
-
         } else {
-            //TODO(call barcodescannerfragment)
             loadFragment(BarCodeScannerFragment.newInstance())
+        }
+    }
+
+    private fun setupObserver() {
+        viewmodel.loadDetailFragment.observe(this) { loadDetailFragment ->
+            if (loadDetailFragment) {
+                loadFragment(BarCodeDetailInformationFragment.newInstance())
+            }
+        }
+
+        viewmodel.loadBarCodeScannerFragment.observe(this) { loadScannerFragment ->
+            if (loadScannerFragment) {
+                loadFragment(BarCodeScannerFragment.newInstance())
+            }
         }
     }
 
