@@ -73,7 +73,7 @@ class BaseApplication : Application(), LifecycleEventObserver {
                 .build()
 
         workManager = WorkManager.getInstance(this)
-        workManager.enqueueUniquePeriodicWork("Timer", ExistingPeriodicWorkPolicy.KEEP, periodicWorkRequest)
+        workManager.enqueueUniquePeriodicWork("Timer", ExistingPeriodicWorkPolicy.REPLACE, periodicWorkRequest)
     }
 
     private fun cancelWorkManger() {
