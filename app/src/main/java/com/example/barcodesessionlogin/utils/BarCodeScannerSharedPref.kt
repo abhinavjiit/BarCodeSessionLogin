@@ -1,8 +1,8 @@
-package com.example.barcodesessionlogin
+package com.example.barcodesessionlogin.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.barcodesessionlogin.ui.data.BarCodeResponse
+import com.example.barcodesessionlogin.data.model.BarCodeResponse
 import com.google.gson.Gson
 
 object BarCodeScannerSharedPref {

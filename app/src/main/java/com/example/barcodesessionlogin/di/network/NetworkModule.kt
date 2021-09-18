@@ -1,13 +1,11 @@
-package com.example.barcodesessionlogin.di
+package com.example.barcodesessionlogin.di.network
 
-import android.content.Context
-import com.example.barcodesessionlogin.BarCodeScannerSharedPref
+import com.example.barcodesessionlogin.apiInterface.ApiService
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -37,5 +35,9 @@ class NetworkModule {
     @Singleton
     @Provides
     fun gsonConverterFactory(gson: Gson): GsonConverterFactory = GsonConverterFactory.create(gson)
+
+    @Singleton
+    @Provides
+    fun providesSessionEndApiService(retrofit: Retrofit): ApiService? = retrofit.create(ApiService::class.java)
 
 }

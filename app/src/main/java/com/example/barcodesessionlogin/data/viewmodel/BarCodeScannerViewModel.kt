@@ -1,14 +1,19 @@
-package com.example.barcodesessionlogin.ui.viewmodel
+package com.example.barcodesessionlogin.data.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.barcodesessionlogin.ui.data.BarCodeResponse
+import androidx.lifecycle.liveData
+import com.example.barcodesessionlogin.data.model.BarCodeResponse
+import com.example.barcodesessionlogin.domain.BarCodeScannerSessionEndRepository
+import com.example.barcodesessionlogin.utils.IResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 @HiltViewModel
-class BarCodeScannerViewModel @Inject constructor() : ViewModel() {
+class BarCodeScannerViewModel @Inject constructor(private val barCodeScannerSessionEndRepository: BarCodeScannerSessionEndRepository) : ViewModel() {
 
     private val _barCodeData = MutableLiveData<BarCodeResponse>()
     val barCodeData: LiveData<BarCodeResponse> = _barCodeData
@@ -31,4 +36,15 @@ class BarCodeScannerViewModel @Inject constructor() : ViewModel() {
         _loadBarCodeScannerFragment.postValue(true)
     }
 
+    fun onSessionEnd(barCodeResponse: BarCodeResponse) = liveData {
+        emit(IResult.Loading)
+        barCodeScannerSessionEndRepository.postSessionEndData(barCodeResponse)
+            .catch {
+                emit(IResult.Error(it))
+            }.collect {
+                emit(it)
+            }
+    }
+
 }
+

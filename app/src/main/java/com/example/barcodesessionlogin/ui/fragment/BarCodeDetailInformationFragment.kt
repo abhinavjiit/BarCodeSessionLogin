@@ -7,16 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Chronometer
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.example.barcodesessionlogin.BarCodeScannerSharedPref
-import com.example.barcodesessionlogin.R
-import com.example.barcodesessionlogin.calculateTotalPrice
-import com.example.barcodesessionlogin.calculateTotalTimeElapsed
-import com.example.barcodesessionlogin.ui.data.BarCodeResponse
-import com.example.barcodesessionlogin.ui.viewmodel.BarCodeScannerViewModel
+import com.example.barcodesessionlogin.*
+import com.example.barcodesessionlogin.data.model.BarCodeResponse
+import com.example.barcodesessionlogin.data.viewmodel.BarCodeScannerViewModel
+import com.example.barcodesessionlogin.utils.BarCodeScannerSharedPref
+import com.example.barcodesessionlogin.utils.IResult
 import com.google.gson.Gson
 import com.google.zxing.integration.android.IntentIntegrator
 
@@ -30,6 +30,10 @@ class BarCodeDetailInformationFragment : Fragment() {
 
     private var pricePerMin: Float = 0.0F
 
+    private lateinit var endSession: TextView
+
+    private lateinit var endSessionLoading: ProgressBar
+
     companion object {
         fun newInstance() = BarCodeDetailInformationFragment()
     }
@@ -41,11 +45,12 @@ class BarCodeDetailInformationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         setupObserver(view)
-        view.findViewById<TextView>(R.id.tvEndSession).setOnClickListener {
+        endSession = view.findViewById(R.id.tvEndSession)
+        endSessionLoading = view.findViewById(R.id.progress)
+        endSession.setOnClickListener {
             qrScanner.initiateScan()
         }
     }
-
 
     private fun setupObserver(view: View) {
         viewmodel.barCodeData.observe(viewLifecycleOwner) { data ->
@@ -55,7 +60,7 @@ class BarCodeDetailInformationFragment : Fragment() {
                 view.findViewById<TextView>(R.id.tvLocationId).text = it.location_id ?: ""
                 view.findViewById<TextView>(R.id.tvPrice).text = it.price_per_min.toString()
                 view.findViewById<Chronometer>(R.id.timer).apply {
-                    base = System.currentTimeMillis().calculateTotalTimeElapsed()
+                    base = System.currentTimeMillis().calculateTotalTimeElapsedTillNow()
                     start()
                     setOnChronometerTickListener {
                         Log.d("TAG", "setupObserver:  $it")
@@ -85,10 +90,30 @@ class BarCodeDetailInformationFragment : Fragment() {
 
     private fun logout(barCodeResponse: BarCodeResponse) {
         if (barCodeResponse.location_id == locationId) {
-            System.currentTimeMillis().calculateTotalPrice(pricePerMin)
-            Toast.makeText(requireContext(), "${System.currentTimeMillis().calculateTotalPrice(pricePerMin)}", Toast.LENGTH_LONG).show()
-            BarCodeScannerSharedPref.prefClear()
-            viewmodel.loadBarCodeScannerFragment()
+            System.currentTimeMillis().calculateTotalSpent { totalTime, endTime ->
+                val postSessionEndResponse = BarCodeResponse().copy(location_id = locationId, time_spent = totalTime, end_time = endTime)
+                viewmodel.onSessionEnd(postSessionEndResponse).observe(viewLifecycleOwner) {
+                    when (it) {
+                        is IResult.Success -> {
+                            endSession.hide()
+                            endSessionLoading.show()
+                            Toast.makeText(requireContext(), "${System.currentTimeMillis().calculateTotalPrice(pricePerMin)}", Toast.LENGTH_LONG)
+                                .show()
+                            BarCodeScannerSharedPref.prefClear()
+                            viewmodel.loadBarCodeScannerFragment()
+                        }
+                        is IResult.Error -> {
+                            endSession.hide()
+                            endSessionLoading.show()
+                            Toast.makeText(requireContext(), it.throwable.localizedMessage, Toast.LENGTH_LONG).show()
+                        }
+                        else -> {
+                            endSession.hide()
+                            endSessionLoading.show()
+                        }
+                    }
+                }
+            }
         } else {
             Toast.makeText(requireContext(), "Invalid BarCode To Logout", Toast.LENGTH_LONG).show()
         }

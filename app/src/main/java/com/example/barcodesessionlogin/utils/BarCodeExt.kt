@@ -1,6 +1,8 @@
 package com.example.barcodesessionlogin
 
 import android.os.SystemClock
+import android.view.View
+import com.example.barcodesessionlogin.utils.BarCodeScannerSharedPref
 
 fun Long.calculateTotalPrice(pricePerMin: Float): Int {
     return try {
@@ -12,7 +14,20 @@ fun Long.calculateTotalPrice(pricePerMin: Float): Int {
     }
 }
 
-fun Long.calculateTotalTimeElapsed(): Long {
+fun Long.calculateTotalTimeElapsedTillNow(): Long {
     val totalTime = (this - BarCodeScannerSharedPref.getStartTime()?.toLong()!!).div(1000)
     return SystemClock.elapsedRealtime() - (totalTime * 1000)
+}
+
+fun Long.calculateTotalSpent(values: (Int, Long) -> Unit) {
+    val totalTime = (this - BarCodeScannerSharedPref.getStartTime()?.toLong()!!).div(1000).toInt()
+    values(totalTime, this)
+}
+
+fun View.show() {
+    visibility = View.VISIBLE
+}
+
+fun View.hide() {
+    visibility = View.GONE
 }

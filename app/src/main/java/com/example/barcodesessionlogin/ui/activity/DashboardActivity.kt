@@ -4,11 +4,11 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.barcodesessionlogin.BarCodeScannerSharedPref
+import com.example.barcodesessionlogin.utils.BarCodeScannerSharedPref
 import com.example.barcodesessionlogin.R
 import com.example.barcodesessionlogin.ui.fragment.BarCodeDetailInformationFragment
 import com.example.barcodesessionlogin.ui.fragment.BarCodeScannerFragment
-import com.example.barcodesessionlogin.ui.viewmodel.BarCodeScannerViewModel
+import com.example.barcodesessionlogin.data.viewmodel.BarCodeScannerViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
