@@ -3,7 +3,6 @@ package com.example.barcodesessionlogin
 import android.app.Application
 import android.app.NotificationManager
 import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -62,7 +61,7 @@ class BaseApplication : Application(), LifecycleEventObserver {
             inputData.apply {
                 putString("locationId", it.location_id)
                 putFloat("pricePerMin", it.price_per_min)
-                putString("locationDetail", it.location_details)
+                putString("locationDetail", it.location_detail)
             }
         }
 

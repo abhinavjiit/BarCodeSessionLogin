@@ -1,5 +1,6 @@
 package com.example.barcodesessionlogin.ui.fragment
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -12,11 +13,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.example.barcodesessionlogin.*
+import com.example.barcodesessionlogin.R
+import com.example.barcodesessionlogin.Validator
 import com.example.barcodesessionlogin.data.model.BarCodeResponse
 import com.example.barcodesessionlogin.data.viewmodel.BarCodeScannerViewModel
-import com.example.barcodesessionlogin.utils.BarCodeScannerSharedPref
-import com.example.barcodesessionlogin.utils.IResult
+import com.example.barcodesessionlogin.utils.*
 import com.google.gson.Gson
 import com.google.zxing.integration.android.IntentIntegrator
 
@@ -34,6 +35,8 @@ class BarCodeDetailInformationFragment : Fragment() {
 
     private lateinit var endSessionLoading: ProgressBar
 
+    private lateinit var timer: Chronometer
+
     companion object {
         fun newInstance() = BarCodeDetailInformationFragment()
     }
@@ -48,6 +51,9 @@ class BarCodeDetailInformationFragment : Fragment() {
         endSession = view.findViewById(R.id.tvEndSession)
         endSessionLoading = view.findViewById(R.id.progress)
         endSession.setOnClickListener {
+            if (::timer.isInitialized) {
+                timer.stop()
+            }
             qrScanner.initiateScan()
         }
     }
@@ -59,7 +65,8 @@ class BarCodeDetailInformationFragment : Fragment() {
                 pricePerMin = it.price_per_min
                 "LocationId -".plus(it.location_id ?: "").also { view.findViewById<TextView>(R.id.tvLocationId).text = it }
                 "Price/Min - ".plus(it.price_per_min.toString()).also { view.findViewById<TextView>(R.id.tvPrice).text = it }
-                view.findViewById<Chronometer>(R.id.timer).apply {
+                timer = view.findViewById<Chronometer>(R.id.timer)
+                timer.apply {
                     base = System.currentTimeMillis().calculateTotalTimeElapsedTillNow()
                     start()
                     setOnChronometerTickListener {
@@ -101,10 +108,11 @@ class BarCodeDetailInformationFragment : Fragment() {
                         is IResult.Success -> {
                             endSession.hide()
                             endSessionLoading.show()
-                            Toast.makeText(requireContext(), "${System.currentTimeMillis().calculateTotalPrice(pricePerMin)}", Toast.LENGTH_LONG)
-                                .show()
-                            BarCodeScannerSharedPref.prefClear()
-                            viewmodel.loadBarCodeScannerFragment()
+                            showSessionOutDetails(
+                                sessionTime = totalTime.toString(),
+                                totalPrice = System.currentTimeMillis().calculateTotalPrice(pricePerMin).toString(),
+                                endTime = getHumanReadableDate(endTime.div(1000), "HH:mm:ss aa")
+                            )
                         }
                         is IResult.Error -> {
                             endSession.hide()
@@ -120,6 +128,24 @@ class BarCodeDetailInformationFragment : Fragment() {
             }
         } else {
             Toast.makeText(requireContext(), "Invalid barcode to Logout", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun showSessionOutDetails(sessionTime: String, totalPrice: String, endTime: String) {
+        val view = this.layoutInflater.inflate(R.layout.dialog_session_detail, null)
+        "SessionTime in minutes - ".plus(sessionTime).also { view.findViewById<TextView>(R.id.tvSessionTime).text = it }
+        "Total price - ".plus(totalPrice).also { view.findViewById<TextView>(R.id.tvTotalPrice).text = it }
+        "End Time - ".plus(endTime).also { view.findViewById<TextView>(R.id.tvEndTime).text = it }
+        AlertDialog.Builder(requireContext()).create().apply {
+            setView(view)
+            setTitle("Session Details")
+            setButton(AlertDialog.BUTTON_NEUTRAL, "OK")
+            { _, which ->
+                BarCodeScannerSharedPref.prefClear()
+                viewmodel.loadBarCodeScannerFragment()
+                dismiss()
+            }
+            show()
         }
     }
 

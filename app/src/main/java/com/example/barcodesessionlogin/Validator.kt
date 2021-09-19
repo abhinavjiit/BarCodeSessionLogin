@@ -30,9 +30,9 @@ object Validator {
     fun validateBarCodeJsonResponse(jsonString: String): Boolean {
         val jsonObject = JSONObject(jsonString)
         try {
-            if (jsonObject.has("location_id") && jsonObject.has("location_details") && jsonObject.has("price_per_min")) {
+            if (jsonObject.has("location_id") && jsonObject.has("location_detail") && jsonObject.has("price_per_min")) {
                 val locationId: String? = jsonObject.getString("location_id")
-                val locationDetail: String? = jsonObject.getString("location_details")
+                val locationDetail: String? = jsonObject.getString("location_detail")
                 val pricePerMin = jsonObject.getDouble("price_per_min")
 
                 if (locationId.isNullOrBlank() || locationId == "null") {
