@@ -1,5 +1,6 @@
 package com.example.barcodesessionlogin
 
+import com.example.barcodesessionlogin.utils.Validator
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

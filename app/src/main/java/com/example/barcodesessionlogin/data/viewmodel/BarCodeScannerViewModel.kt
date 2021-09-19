@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
-import com.example.barcodesessionlogin.Validator
+import com.example.barcodesessionlogin.utils.Validator
 import com.example.barcodesessionlogin.data.model.BarCodeResponse
 import com.example.barcodesessionlogin.domain.BarCodeScannerSessionEndRepository
 import com.example.barcodesessionlogin.utils.IResult

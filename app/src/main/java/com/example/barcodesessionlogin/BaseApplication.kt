@@ -21,20 +21,6 @@ class BaseApplication : Application(), LifecycleEventObserver {
 
     private lateinit var workManager: WorkManager
 
-//    companion object {
-//        @JvmField
-//        var appContext: BaseApplication? = null
-//
-//        fun setInstance(application: BaseApplication) {
-//            appContext = application
-//        }
-//
-//        @JvmStatic
-//        fun getInstance(): BaseApplication {
-//            return appContext as BaseApplication
-//        }
-//    }
-
     override fun onCreate() {
         super.onCreate()
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)

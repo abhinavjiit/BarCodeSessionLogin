@@ -1,4 +1,4 @@
-package com.example.barcodesessionlogin
+package com.example.barcodesessionlogin.utils
 
 import android.util.Log
 import org.json.JSONObject
@@ -51,7 +51,6 @@ object Validator {
             Log.i("TAG", "validateBarCodeJsonResponse: $e")
             return false
         }
-
     }
 
 }

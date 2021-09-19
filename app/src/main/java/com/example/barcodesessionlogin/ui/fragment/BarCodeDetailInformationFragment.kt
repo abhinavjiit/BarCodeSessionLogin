@@ -14,7 +14,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.barcodesessionlogin.R
-import com.example.barcodesessionlogin.Validator
 import com.example.barcodesessionlogin.data.model.BarCodeResponse
 import com.example.barcodesessionlogin.data.viewmodel.BarCodeScannerViewModel
 import com.example.barcodesessionlogin.utils.*
@@ -140,7 +139,7 @@ class BarCodeDetailInformationFragment : Fragment() {
             setView(view)
             setTitle("Session Details")
             setButton(AlertDialog.BUTTON_NEUTRAL, "OK")
-            { _, which ->
+            { _, _ ->
                 BarCodeScannerSharedPref.prefClear()
                 viewmodel.loadBarCodeScannerFragment()
                 dismiss()
