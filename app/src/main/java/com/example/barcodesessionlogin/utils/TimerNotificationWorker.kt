@@ -36,9 +36,9 @@ class TimerNotificationWorker(context: Context, params: WorkerParameters) : Coro
 
         val customView = RemoteViews(mContext.packageName, R.layout.custom_timer_notification)
         customView.setChronometer(R.id.noteChronometer, SystemClock.elapsedRealtime() - (totalTime * 1000), null, true)
-        customView.setTextViewText(R.id.locationId, locationId ?: "")
-        customView.setTextViewText(R.id.locationDetail, locationDetail ?: "")
-        customView.setTextViewText(R.id.pricePerMin, pricePerMin.toString())
+        customView.setTextViewText(R.id.locationId, "LocationId - ".plus(locationId ?: ""))
+        customView.setTextViewText(R.id.locationDetail, "Location Details - ".plus(locationDetail ?: ""))
+        customView.setTextViewText(R.id.pricePerMin, "Price/Min - ".plus(pricePerMin.toString()))
 
         val notificationManager = mContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -46,6 +46,7 @@ class TimerNotificationWorker(context: Context, params: WorkerParameters) : Coro
             notificationManager.createNotificationChannel(channel)
         }
         val notification: NotificationCompat.Builder = NotificationCompat.Builder(mContext, "default")
+            .setContentTitle("BarCodeScanner")
             .setOngoing(true)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setCustomBigContentView(customView)

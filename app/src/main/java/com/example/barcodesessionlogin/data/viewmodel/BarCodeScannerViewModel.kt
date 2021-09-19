@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
+import com.example.barcodesessionlogin.Validator
 import com.example.barcodesessionlogin.data.model.BarCodeResponse
 import com.example.barcodesessionlogin.domain.BarCodeScannerSessionEndRepository
 import com.example.barcodesessionlogin.utils.IResult
@@ -38,12 +39,17 @@ class BarCodeScannerViewModel @Inject constructor(private val barCodeScannerSess
 
     fun onSessionEnd(barCodeResponse: BarCodeResponse) = liveData {
         emit(IResult.Loading)
-        barCodeScannerSessionEndRepository.postSessionEndData(barCodeResponse)
-            .catch {
-                emit(IResult.Error(it))
-            }.collect {
-                emit(it)
-            }
+        if (Validator.validateSessionOutData(barCodeResponse.location_id, barCodeResponse.time_spent, barCodeResponse.end_time)) {
+            barCodeScannerSessionEndRepository.postSessionEndData(barCodeResponse)
+                .catch {
+                    emit(IResult.Error(it))
+                }.collect {
+                    emit(it)
+                }
+        } else {
+            emit(IResult.Error(IllegalArgumentException("SessionOut data is invalid")))
+        }
+
     }
 
 }

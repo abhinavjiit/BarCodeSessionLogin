@@ -57,8 +57,8 @@ class BarCodeDetailInformationFragment : Fragment() {
             data?.let {
                 locationId = it.location_id ?: ""
                 pricePerMin = it.price_per_min
-                view.findViewById<TextView>(R.id.tvLocationId).text = it.location_id ?: ""
-                view.findViewById<TextView>(R.id.tvPrice).text = it.price_per_min.toString()
+                "LocationId -".plus(it.location_id ?: "").also { view.findViewById<TextView>(R.id.tvLocationId).text = it }
+                "Price/Min - ".plus(it.price_per_min.toString()).also { view.findViewById<TextView>(R.id.tvPrice).text = it }
                 view.findViewById<Chronometer>(R.id.timer).apply {
                     base = System.currentTimeMillis().calculateTotalTimeElapsedTillNow()
                     start()
@@ -78,7 +78,11 @@ class BarCodeDetailInformationFragment : Fragment() {
                     val jsonResponse = it.replace("\\", "", false)
                         .replace("\"{", "{", false)
                         .replace("}\"", "}", false)
-                    logout(Gson().fromJson(jsonResponse, BarCodeResponse::class.java))
+                    if (Validator.validateBarCodeJsonResponse(jsonResponse)) {
+                        logout(Gson().fromJson(jsonResponse, BarCodeResponse::class.java))
+                    } else {
+                        Toast.makeText(requireContext(), "Either field is missing or invalid data", Toast.LENGTH_SHORT).show()
+                    }
                 } catch (e: Exception) {
                     Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 }
@@ -89,7 +93,7 @@ class BarCodeDetailInformationFragment : Fragment() {
     }
 
     private fun logout(barCodeResponse: BarCodeResponse) {
-        if (barCodeResponse.location_id == locationId) {
+        if (Validator.validateBarCodeIdToLogout(barCodeResponse.location_id, locationId)) {
             System.currentTimeMillis().calculateTotalSpent { totalTime, endTime ->
                 val postSessionEndResponse = BarCodeResponse().copy(location_id = locationId, time_spent = totalTime, end_time = endTime)
                 viewmodel.onSessionEnd(postSessionEndResponse).observe(viewLifecycleOwner) {
@@ -115,7 +119,7 @@ class BarCodeDetailInformationFragment : Fragment() {
                 }
             }
         } else {
-            Toast.makeText(requireContext(), "Invalid BarCode To Logout", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Invalid barcode to Logout", Toast.LENGTH_LONG).show()
         }
     }
 

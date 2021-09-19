@@ -83,9 +83,4 @@ class BaseApplication : Application(), LifecycleEventObserver {
         }
     }
 
-    override fun onTerminate() {
-        super.onTerminate()
-        Toast.makeText(this, "jkadbfiuadfbe", Toast.LENGTH_LONG).show()
-    }
-
 }
